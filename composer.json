@@ -1,0 +1,6 @@
+{
+  "require": {
+    "guzzlehttp/guzzle": "v3.8.1",
+    "symfony/yaml": "2.3.*"
+  }
+}

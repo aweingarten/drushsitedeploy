@@ -1,0 +1,74 @@
+#####################################
+# MySites Dev Deployment
+#####################################
+maintenance_mode: 1
+maintenance_mode_message: The site is down for routine maintenance.  We'll be back soon!
+disable_cron: 1
+
+# Highly recommend leaving these on.  If these are off then you are allowing code
+# to be maintained outside of version control and are killing puppies!
+feature_revert_all: 1
+views_revert_all: 1
+
+cc_all: 1
+
+
+# This is a nice to have.  It may not be possible to include given the
+# given the different boostrap levels required.
+rebuild_registry: 1
+
+# Thinking if a module like dblog was turned on and forgotten we can turn it off
+# here.  It will turn off any modules not included in the manifests below
+disable_unlisted_modules: 1
+update_db: 1
+
+# Make sure that the
+themes:
+ - bartik1
+ - garland
+ - seven
+
+default_theme: bartik
+
+default_admin_theme: seven
+
+
+# Values stored in the variables table
+variables:
+  site_name: Test Site
+  theme_default: Bartik
+  adam_var: beta;
+
+# Sometimes as part of the deployment process we need to turn modules off before
+# later deployment steps.
+module_disable:
+  contrib:
+  custom:
+  feature:
+
+
+#####################################
+# Acquia Cloud API Credentials
+#####################################
+acquia_cloud_api_username:
+acquia_cloud_api_password:
+acquia_ignore_cert_mismatch: 1
+acquia_backup_db: 1
+acquia_copy_db: 1
+acquia_copy_db_src: prod
+acquia_flush_varnish_cache: 1
+acquia_copy_files: 1
+acquia_copy_files_src: prod
+acquia_site_domain: dev.mysite.net  #used for varnish
+#Can I backup and restore acquia cron jobs for env  : nope :(
+
+
+
+
+module_enable:
+  core:
+    - test
+  contrib:
+  custom:
+  feature:
+
