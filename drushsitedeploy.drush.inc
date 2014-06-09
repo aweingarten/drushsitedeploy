@@ -9,7 +9,7 @@
  *    3. In an arbitrary folder specified with the --include option.
  */
 
-require_once 'sitedeploy_steps.inc';
+require_once 'drushsitedeploy_steps.inc';
 require_once 'vendor/autoload.php';
 
 
