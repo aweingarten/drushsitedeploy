@@ -16,7 +16,7 @@ require_once 'vendor/autoload.php';
 /**
  * Implements hook_drush_command().
  */
-function sitedeploy_drush_command() {
+function drushsitedeploy_drush_command() {
   $items = array();
   $items['sitedeploy'] = _cmd_sitedeploy();
   $items['sitedeploy-diff'] = _cmd_sitedeploy_diff();
@@ -33,13 +33,14 @@ function sitedeploy_drush_command() {
  */
 function _cmd_sitedeploy() {
   return array(
-    'description' => "Deployment system for a new site.",
+    'description' => "Deployment system for a new site. Reads a yaml config
+     file that you build and executes the steps to get your site up ",
     'arguments' => array(
       'deployfile' => 'Deployment config file',
       'tag' => 'Git Tag to deploy to environment',
     ),
     'examples' => array(
-      'drush sitedeploy --deployfile mydeployment.yaml --tag 7.x-2.2' => 'Deploys a site.',
+      'drush sitedeploy mydeployment.yaml 7.x-2.2' => 'Deploys a site.',
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_MAX,
   );
@@ -53,13 +54,9 @@ function _cmd_sitedeploy() {
  */
 function _cmd_sitedeploy_sampleconfig() {
   return array(
-    'description' => "Deployment system for a new site.",
-    'arguments' => array(
-      'deployfile' => 'Deployment config file',
-      'tag' => 'Git Tag to deploy to environment',
-    ),
+    'description' => "Prints a sample yaml config file for use as reference.",
     'examples' => array(
-      'drush sitedeploy --deployfile mydeployment.yaml --tag 7.x-2.2' => 'Deploys a site.',
+      'drush sitedeploy-sampleconfig' => 'Prints config file sample.',
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_MAX,
   );
@@ -73,7 +70,7 @@ function _cmd_sitedeploy_sampleconfig() {
  * to a site before performing a deployment.  Can help detect unexpected changes
  * before it's too late.
  */
-function drush_sitedeploy_diff() {
+function drushsitedeploy_diff() {
   throw new Exception("Not implemented. Will be in a later release.");
 }
 
@@ -84,16 +81,80 @@ function drush_sitedeploy_diff() {
  * point where we feel comfortable deploying.  Only minimally invasive steps
  * should be included here.
  */
-function drush_sitedeploy_buildoptions() {
+function drushsitedeploy_buildoptions() {
   DeployPrinter::printSection("Config File Sample");
 
-  drush_command_invoke_all('sitedeploy_config_sample');
+  $has_hook_to_execute = count(drush_command_implements('sitedeploy_configsample')) > 0;
+
+  $build_options_text = "#####################################
+                          # MySites Dev Deployment
+                          #####################################
+                          maintenance_mode: 1
+                          maintenance_mode_message: The site is down for routine maintenance.  We'll be back soon!
+                          disable_cron: 1
+
+                          # Highly recommend leaving these on.  If these are off then you are allowing code
+                          # to be maintained outside of version control and are killing puppies!
+                          feature_revert_all: 1
+                          views_revert_all: 1
+
+                          cc_all: 1
+
+
+                          # This is a nice to have.  It may not be possible to include given the
+                          # given the different boostrap levels required.
+                          rebuild_registry: 1
+
+                          # Thinking if a module like dblog was turned on and forgotten we can turn it off
+                          # here.  It will turn off any modules not included in the manifests below
+                          disable_unlisted_modules: 1
+                          update_db: 1
+
+                          # Make sure that the
+                          themes:
+                           - bartik1
+                           - garland
+                           - seven
+
+                          default_theme: bartik
+
+                          default_admin_theme: seven
+
+
+                          # Values stored in the variables table
+                          variables:
+                            site_name: Test Site
+                            theme_default: Bartik
+                            adam_var: beta;
+
+                          # Sometimes as part of the deployment process we need to turn modules off before
+                          # later deployment steps.
+                          module_disable:
+                            contrib:
+                            custom:
+                            feature:
+
+
+                          module_enable:
+                            core:
+                              - test
+                            contrib:
+                            custom:
+                            feature:";
+
+  DeployPrinter::printMessage($build_options_text);
+
+
+
+  if ($has_hook_to_execute) {
+    drush_command_invoke_all('sitedeploy_configsample');
+  }
 }
 
 /**
  * Drush command callback function. Entry point for the sitedeploy process.
  */
-function drush_sitedeploy() {
+function drushsitedeploy() {
 
   try{
     DeployPrinter::printWelcome();

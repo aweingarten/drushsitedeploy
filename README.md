@@ -1,72 +1,39 @@
 Drush Site Deploy
 ==============
 
-TO DO
----------
-- Return correct error codes along with exceptions.  These are used for drush
-  exit codes.
-
-- clean up output around the webservice calls.  When they are thinking.  Explain the ....
-  wrap them to 80 chars.
-
-- make tool unit testable.
-
-- implement helper text.
-
-- implement command to display sample file.
-
-- By default drupal hooks in a drush extension will not execute unless the
-  extension is registered as a drupal module.  Drush commands do a lot of
-  additional work to work around this limitation. To collect as much information
-  as possible I would like to implement hook_watchdog and print to the screen.
-
-  Investigating writing directly to the DB during bootstrap to register drupal
-  hooks in the extension.  This could be a universally helpful item.  Once drush
-  exists the DB hacks would need to be removed.
-
-  Thinking this can be a new Drush extension.  Seems like this has universal
-  applicability.
-
-    - https://api.drupal.org/api/drupal/includes%21module.inc/function/module_implements/7
-    - cache_bootstrap -> module_implements   or  static $drupal_static_fast in module.inc
-
-
-
-
-
-#### longer term todo
-- rollback?
-- notifications
-- deployment plan
-- automated tested (phpunit tests for functions.  Behat for cloud api operations )
-
-
--log anything anomalyous
-    - modules that are active but not included in the files
-    - features that are active but not included in the files
-    - fields, content types, taxononomies, permissions, variables which are not serealized in the module
-
-
-
-
 
 Overview
 ---------
 
-Drush Site Deploy provides a single drush command to deploy a drupal site.
+Drush Site Deploy provides a single Drush command to deploy a Drupal site.
+It reads deployment settings from a yaml file that you customize.
+
+In this case the word deployment means taking code from version control, deploying
+it to a server, and then executing commands and updates against the db server.
+
 When we deploy updates to a Drupal site we want to see reproducible results. A
 smooth, quiet deployment, which achieves a clear outcome, is always the goal.
 It gets developers into bed at a somewhat reasonable hour and keeps PMs and
 stakeholders happy.
+
+There are other existing solutions for deploying a build. The usual suspects are:
+- manual deployment
+- scripts
+- CI Server like Jenkins
+- Aegir
+
+For some these are great solutions.  However, they often require knowledge outside Drupal.
+This approach is an inherently drupal solution.  That allows people to leverage their
+drupal knowledge for deployment.
 
 
 Dependencies
 ------------
 
   - Drush 6.x or higher.
-
-  - Composer recommended for installing third party libraries.  It will install
-    symphony2 and guzzle.
+  - Drupal 7.  (D6 and D8 are not yet supported).
+  - Composer recommended for installing third party libraries.  Composer will install
+    symphony2/yaml and guzzle.
 
 
 Usage
@@ -98,8 +65,11 @@ Alternatively you can run the following command to get the most up-to-date
 listing:
     `drush sitedeploy --buildoptions`
 
-Customize the yaml file as necessary to meet your needs.  Then save it somewhere
+Customize the yaml file as necessary to meet your needs.  We recommend you save it somewhere
 under source control.
+
+The target environment is interpolated from the site that drush bootstraps.
+If you use drush aliases the alias will specify the target environment.
 
 Now you are ready to go:
     `drush sitedeploy <buildfile> <vcs-tag>`
@@ -178,7 +148,6 @@ would be update hooks written each release. Every release you would run drush
 updb and all your deployments steps would automatically execute. Sounds
 great? Problems solved!
 
-
 What happens though if despite all your best efforts a deployment fails release
 QA and you are forced to roll back to your previous release. Depending on what
 was contained in your update hooks you might be able to rollback the code
@@ -196,7 +165,8 @@ you don’t know the state of your site with any degree of certainty then the si
 effectively out of control.
 
 #### I already have a continuous integration tools to do this?
-
+Contiuous integration tools like Jenkins are awesome but they aren't the right
+fir
 
 #### I can write shell scripts to invoke drush and do the same thing?
 Often shell scripts are inefficient and their writers may not take the time to
@@ -206,6 +176,7 @@ Imagine doing one for each module that's enabled.
 
 
 FAQs:
+----------
 
 - Q: Why aren't my hook implementations triggering?
 - A: Assuming that the hook are correct try running `drush cache-clear drush`
@@ -216,5 +187,54 @@ FAQs:
      you are using a drush alias this is probably a remote machine NOT your local.
 
 - Q: How do I create a drush hook to extend drushsitedeploy?
+
+
+
+
+TO DO
+---------
+- Return correct error codes along with exceptions.  These are used for drush
+  exit codes.
+
+- clean up output around the webservice calls.  When they are thinking.  Explain the ....
+  wrap them to 80 chars.
+
+- make tool unit testable.
+
+- implement helper text.
+
+- implement command to display sample file.  Have hooks so that other extensions
+  can add to sample file.
+
+- By default drupal hooks in a drush extension will not execute unless the
+  extension is registered as a drupal module.  Drush commands do a lot of
+  additional work to work around this limitation. To collect as much information
+  as possible I would like to implement hook_watchdog and print to the screen.
+
+  Investigating writing directly to the DB during bootstrap to register drupal
+  hooks in the extension.  This could be a universally helpful item.  Once drush
+  exists the DB hacks would need to be removed.
+
+  Thinking this can be a new Drush extension.  Seems like this has universal
+  applicability.
+
+    - https://api.drupal.org/api/drupal/includes%21module.inc/function/module_implements/7
+    - cache_bootstrap -> module_implements   or  static $drupal_static_fast in module.inc
+
+ - Come up a solution for how to handle D6/D7/D8 with the same branch.
+
+
+#### longer term todo
+- D6 Testing
+- rollback?
+- notifications
+- deployment plan
+
+-log anything anomalous
+    - modules that are active but not included in the files
+    - features that are active but not included in the files
+    - fields, content types, taxonomies, permissions, variables which are not serialized in the module
+
+
 
 

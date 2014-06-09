@@ -43,7 +43,12 @@ class SiteDeploySteps {
    */
   private function setup() {
     DeployPrinter::printSection("Kicking off the deployment:");
-    drush_command_invoke_all('sitedeploy_setup', $this->configFile);
+
+    $has_hook_to_execute = count(drush_command_implements('sitedeploy_setup')) > 0;
+    if ($has_hook_to_execute) {
+      drush_command_invoke_all_ref('sitedeploy_setup', $this->configFile);
+    }
+
 
     if (isset ($this->configFile[maintenance_mode])) {
       variable_set('maintenance_mode', $this->configFile[maintenance_mode]);
@@ -72,7 +77,11 @@ class SiteDeploySteps {
    */
   private function codeDeploy() {
     DeployPrinter::printSection("Deploying Code");
-    drush_command_invoke_all_ref('sitedeploy_codedeploy', $this->configFile);
+
+    $has_hook_to_execute = count(drush_command_implements('sitedeploy_codedeploy')) > 0;
+    if ($has_hook_to_execute) {
+      drush_command_invoke_all_ref('sitedeploy_codedeploy', $this->configFile);
+    }
   }
 
   /**
@@ -80,7 +89,12 @@ class SiteDeploySteps {
    */
   private function postCodeDeploy() {
     DeployPrinter::printSection("Post Code Deployment Tasks");
-    drush_command_invoke_all_ref('sitedeploy_postcodedeploy', $this->configFile);
+
+
+    $has_hook_to_execute = count(drush_command_implements('sitedeploy_postcodedeploy')) > 0;
+    if ($has_hook_to_execute) {
+      drush_command_invoke_all_ref('sitedeploy_postcodedeploy', $this->configFile);
+    }
   }
 
   /**
@@ -91,7 +105,10 @@ class SiteDeploySteps {
     DeployPrinter::printMessage("Taking site out of maintenance mode");
     variable_set('maintenance_mode', 0);
 
-    drush_command_invoke_all_ref('sitedeploy_cleanup', $this->configFile);
+    $has_hook_to_execute = count(drush_command_implements('sitedeploy_cleanup')) > 0;
+    if ($has_hook_to_execute) {
+      drush_command_invoke_all_ref('sitedeploy_cleanup', $this->configFile);
+    }
   }
 
   /**
