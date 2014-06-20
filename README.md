@@ -224,7 +224,6 @@ TO DO
  - Come up a solution for how to handle D6/D7/D8 with the same branch.
 
 
-#### longer term todo
 - D6 Testing
 - rollback?
 - notifications
